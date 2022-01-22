@@ -1,0 +1,400 @@
+ ---
+#title: "Cryptography course analysis"
+#author: "Kipsang Mutai Nicholas"
+#date: "01/22/2022"
+---
+
+---
+output:
+  html_document: default
+  pdf_document: default
+---
+ ---
+#title: "Cryptography course analysis"
+#author: "Kipsang Mutai Nicholas"
+#date: "01/22/2022"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+```
+
+## Online Cryptography analysis
+
+### 1.Defining the Question.
+
+This research is meant to identify the specific individuals who are likely to click on an advertisement add.
+
+#### a.) Who is likely to click the online cryptography course advertisement?
+
+
+## 2.) Metrics of success
+My success will be achieved by correctly identifying individuals that are likely to click into an add. This will be achieved by performing and in depth review of the data at hand to analyse factors influencing the advertisement clicks while assessing individual independent variables and their distribution within the set and their relationship with one another.
+
+## 3.) The context of analysis.
+The online cryptography course is a new field involved with ensuring secure communication between two individuals. This field though new, could improve information security. Using data collected from a former advertisement on a related course posted on a blog, we can get to view the recipient behavior of this advertisements so as to maximize on high priority recipients to ensure effective advertising and return on investment made in the business by not concentrating on low target potential customers.
+
+## 4.) Experimental design taken
+This will involve exhaustive techniques to understand our data in and out. This will be done by finding and dealing with extreem values ,anomalies, missing values and duplicated values to ensure the data used is an actual representative of the actual observations. This will be followed by and exhaustive analysis of the attributes (variables) of the data.Using the inference borrowed from our analysis , we will obtain answers to our specific question while challenging the solution by providing how to make improvements to ensure optimum marketing is achieved.
+
+## 5.) Dataset appropriateness for analysis 
+
+
+A brief review of the data to inform us what we are working with  and its importance for analysis. 
+```{r}
+# Loading our dataset.
+library(data.table)
+advert_df<-fread("http://bit.ly/IPAdvertisingData")
+# Checking the first 6 observations
+head(advert_df)
+```
+
+
+### Checking the structure of my dataset.
+```{r}
+# Reviewing the dimensions making my table
+dimensions <-dim(advert_df)
+dimensions
+```
+My dataset has a thousand observations and 10 variables of numerical,integer character datatypes. There is also time stamp variable within the data.
+
+
+## 6.) Cleaning the dataset.
+
+This will be aimed at identifying extreme values, anomalies within the set,missing values and duplicated values in the set.
+```{r}
+colnames(advert_df)
+```
+
+
+```{r}
+# Changing the column names for easy readability
+colnames(advert_df)<-c("Time_on_site","Age","A_income","Internet_Usage","Ad_Topic","City","Male","Country","Timestamp","Clicked")
+```
+
+
+### a.) Numeric datatypes
+```{r}
+# Identifying outliers in the numerical columns
+library("dplyr") 
+nums_df<-select_if(advert_df,is.numeric)
+nums_df
+``` 
+
+### Rechecking the column names
+```{r}
+colnames(advert_df)
+```
+
+
+### A function to check for outliers within the numerical values of the set
+```{r}
+# Boxplot of the individual variables
+box_plot<-function(data,var,main){
+  boxplot(data[[var]],ylab="Distribution of values",main=main)
+}
+```
+
+
+### A boxplot of the daily time spent onsite to check for outliers
+```{r}
+box_plot(nums_df,1,"A boxplot of Daily Time Spent on Site")
+# There are no outliers in the values in the daily time spent on the site  
+```
+
+
+### A boxplot of Age to check for outliers
+```{r}
+box_plot(nums_df,2,"A boxplot of Age")
+# There are no outliers in the Age distribution
+```
+
+
+### A boxplot of income to check for outliers
+```{r}
+box_plot(nums_df,3,"A boxplot of Area Income")
+# There are several outliers lying below the 25th percentile
+```
+
+
+### A box plot of Daily Internet Usage to check for outliers
+```{r}
+box_plot(nums_df,4,"A boxplot of Daily Internet Usage")
+# There are no outliers in the daily internet usage values
+```
+
+
+### A boxplot to check for outliers on whether an individual is male or not
+```{r}
+box_plot(nums_df,5,"A boxplot of Males")
+# There are no  anomalies nor outliers in the male column. Since values are either 0's or 1's for Yes and No respectively
+```
+
+
+### A boxplot of Clicked on Ad to check for outliers
+```{r}
+box_plot(nums_df,6,"A boxplot of Clicked on Ads")
+# No anomaly nor outliers detected in this set
+```
+
+
+### Anomalies and Outliers in the Non-numeric columns.
+```{r}
+Numerics<-noquote(names(nums_df))
+Numerics
+non_nums<-subset(advert_df,select = -c(Time_on_site,Age,A_income,Internet_Usage,Male,Clicked))
+```
+```{r}
+head(non_nums)
+```
+
+
+### Checking for unique values in each column
+
+```{r}
+print(length(unique(non_nums[[1]])))
+print(length(unique(non_nums[[2]])))
+print(length(unique(non_nums[[3]]))) 
+```
+There are alot of unique values in this set
+We can see that some cities come in several times as the unique values do not get to the total number of columns
+There are 237 unique countries in this set. No anomalies detected on an outwardThere are 237 unique countries in this set. No anomalies detected on an outward
+
+### Dealing with Outliers in the Area of income set
+
+# Checking the numbers outside the InterQuantile range
+```{r}
+boxplot.stats(advert_df$A_income)$out
+```
+# Checking for legitimacy of the outliers by checking the maximum and the minimum
+```{r}
+print(max(advert_df$A_income))
+print(min(advert_df$A_income))
+```
+# They wont be regarded as illegitimate data points as they are not too extreem 
+
+### Checking for Duplicates
+```{r}
+# Checking for duplicated rows
+length(advert_df[duplicated(advert_df),])
+
+```
+There are 10 duplicated values in this set
+### Dealing with duplicates
+```{r}
+clean_df<-advert_df[!duplicated(advert_df),]
+
+clean_df
+```
+
+
+### confirming the operation
+```{r}
+clean_df[duplicated(clean_df),]
+```
+
+
+### Checking for null values
+```{r}
+# Length which is null
+length(which(is.na.data.frame(clean_df)))
+
+```
+# There are no missing values in the set
+
+### Reextracting numerical variables from clean data
+```{r}
+# Re-extracting numerical values from the clean data with no duplicates
+library("dplyr") 
+clean_nums_df<-select_if(clean_df,is.numeric)
+clean_nums_df
+```
+
+## 7. Univariate Analysis
+
+
+### Measures of Central Tendacy
+```{r}
+# Numerical values
+head(clean_nums_df)
+```
+# Mean of individual columns
+
+```{r}
+# Mean of individual columns
+colMeans(clean_nums_df)
+
+```
+The values as valid especially for the 0's and 1's columns the mean is approximately 0.5 giving us a clue of the distribution of the discrete values.
+
+```{r}
+#A summary of everything in numerical set
+summary.data.frame(clean_nums_df)
+```
+ 
+
+
+### Histogram of the individual columns to see their distribution
+
+For continous variables a histogram is paramount to display the distribution of values in the set while telling us the skewness and kurtosis of out data
+```{r}
+hist(clean_nums_df$Age,xlab="Age",main="Distribution of age")
+
+```
+We can see from this that age of participants was mostly concentrated around 30 years. Its skewed  to the left giving us insight that most participants in this sample set were in the mid 30's
+
+# Distribution of the time on sight
+```{r}
+
+hist(clean_nums_df$Time_on_site,xlab = "Time spent on site",main="The distribution of the time on site")
+
+```
+
+Frequency of Time spent is relatively high the 3rd quantile of the set. This tells us that a significantly large amount of time is spent on the site
+```{r}
+# Distribution of area income
+hist(clean_nums_df$A_income,xlab="Area Income",main="This is the ditribution of the Area Income")
+
+```
+The Area income is skewed to the right, the tells us that the income is populated on the higher end with a low population with lower income
+
+```{r}
+# Internet usage
+hist(clean_nums_df$Internet_Usage,xlab="Internet Usage",main="Distribution of Internet usage")
+ 
+```
+The distribution is relatively normal with the lower population on the higher end. 
+
+## Discrete Variables
+
+```{r}
+# Getting the values in the male variable
+males<-clean_nums_df$Male
+# Getting the frequency table of the male set
+male_dist<-table(males)
+# Plotting a bar plot to understand the distribution of discrete values in the males column
+barplot(male_dist,main = "The Ditribution of Males",xlab = "Males and Non males")
+
+```
+# The non male which i would presume to be female were higher in count as compared to males
+
+```{r}
+# Getting the values in the clicks
+ad_clicks<-clean_nums_df$Clicked
+# Getting the frequency table of the clicks set
+ad_clicks_dist<-table(ad_clicks)
+# Plotting a bar plot to understand the distribution of discrete values in the clicks column
+barplot(ad_clicks_dist,main = "The Ditribution of Adclicks",xlab = "Yes and No")
+
+```
+The distribution was balanced.
+
+## 8.) Bivariate and Multivariate Analysis
+ Looking at the relationship between two variables and their variations within the set.
+```{r}
+install.packages("Hmisc")
+library("Hmisc")
+```
+
+```{r}
+# Checking the correlation and their corresponding significant levels
+correlations<-rcorr(as.matrix(clean_nums_df))
+correlations
+```
+# There is a negative linear correlation between Age and Time on site. This means for any positive variation in Age there is a negative variation of 0.33 magnitude. It is true because it is rare to find people who are advanced in age spending time on the internet.This can also be reflected in internet usage negative correlation with age.
+# There is a positive linear relationship between Area income and time on site.
+# The P-values explain the probability if the correlation being due to chance or an equally extreeme event. We get to see the correlations that are statistically significant being (P<0.05):
+# All except Male and the other continuous variables - This is the case because male has categorical or rather discrete values thus tabulation if its correlation with a continuous variable is not statistically significant. 
+# The same sentiment would be shared by the clicked variable. The correlations shown with other variables would not be a representation of the numbers on the ground as clicked is discrete and the values are either 0 or 1. We cannot use correlation to make a conclusion about the relationship between clicked and other continous variables.
+
+### Visualizations
+```{r}
+# PLotting a box plot to assess the relationship betwen Age of individuals and their click rate. 
+boxplot(Age~Clicked,data=clean_df,main = "The Ditribution of Ages and clicks",xlab = "No and Yes")
+# It is evident that individuals in between the age of approximately 35  to 45 are likely to click into the add as compared to those in their 20's to 30's and the age above 50.
+```
+### Plotting relationships between clicked and income across areas.
+```{r}
+# Income area and the clicks
+boxplot(A_income~Clicked,data=clean_df,main = "The Ditribution of Area Income area and clicks",xlab = "No and Yes")
+# It is so evident that the people in areas with income between 40,000 and approximately 59,000 are more likely to click into an add as compared with individuals with areas of and income above 59,000 to approximately 70,000. some individuals with and income below 40,000 are seem NOT to click into an add. 
+```
+### Relationship between time on site and clicks.
+```{r}
+# Plot to understand relationship between time on side and ad clicks
+boxplot(Time_on_site~Clicked,data=clean_df,main = "The Ditribution of Time onsite and clicks",xlab = "No and Yes")
+### This is an interesting discovery. People who spend less time on the blogging site are more likely to click into an add as compared to people who spend more time on the sight. This could be in avoidance of distraction or just by lack of interest.
+## A hypothesis testing on this needs to be made to ascertain the correctness on this discovery.
+## A few individuals who spend less time on the site(in units specified) do not also click into the add. It is safe to say that the target individuals are those who spend from 45 to 60 (units of time specified).
+```
+### Relationship between Internet Usage and Clicks
+```{r}
+# Internet usage and clicks
+boxplot(Internet_Usage~Clicked,data=clean_df,main = "The Ditribution of Internet usage and clicks",xlab = "No and Yes")
+# Same as time on site, people with less internet usage are more likely to click into an add. There are however a few individuals who have a higher internet usage that still click into the add. The least likely individuals to click into an add use internet(units specified) between 200 and approximately 230.
+```
+### Finding the relationship between the gender and the ads clicked.
+```{r}
+# Finding the relationship between male and clicked
+my_table<-with(clean_df,table(Clicked,Male))
+print(my_table)
+# From this we can see that the NON-MALE are more likely to click as compared to Male. For those who did not click, the ratio is the same. Although its important to say as we had seen in the correlation this relationship is not statistically significant and thus should not be considered as a factor for our target audience in this case.
+```
+### Discrete variables
+```{r}
+# Dealing with yes clicks to see the countries that are most frequent
+yes_clicked<-clean_df[clean_df$Clicked==1]
+# Checking the frequency of individual countries
+country_tbl<-as.matrix(table(yes_clicked$Country))
+country_tbl[country_tbl>=5,]
+# Its evident that Australia,France,Hungary, Turkey and other countries with a frequency count greater than five can be a priority while displaying ads
+```
+```{r}
+unique(country_tbl)
+```
+
+
+#### City
+
+```{r}
+# Dealing with yes clicks to see the cities that are most frequent
+yes_clicked<-clean_df[clean_df$Clicked==1]
+```
+# Checking the frequency of individual countries
+```{r}
+city_tbl<-as.matrix(table(yes_clicked$City))
+unique(city_tbl)
+# Lake David appears uniquely twice in the cities with ad clicks
+```
+
+## 9.) Findings and Recomendations
+### Based on the findings from our data we get to see that.
+* Non-Males are more likely to click into an add as compared to males.
+* Countries that have a higher count include but are not limited to Australia,Turkey,France, Hungary etc.
+* Internet usage is inversely proportional to add clicks . This can however be challenged by checking the statistical significance of that finding.
+* Ad clicks are also inversely proportional to time spent on site. I can challenge this by performing a hypothesis testing on this findings to prove its statistical significance.
+* The age that is more likely to click an ad is between approximately 35 and 45 yrs.
+* The area income that is likely to click in an add fall between approximately 40,000 and 59,000 .
+* This can be challenged by looking deeper into these groups and assessing whether the extent of influence our outliers regarded as legitimate data points had on the analysis.
+
+
+## 10.) Conclusions and Recommendations
+Based on our findings, we get to conclude that:
+
+* The location, Income ,internet usage and time spent on the blogging site is a factor to consider in considering high priority customers. 
+* More data needs to be collected on locations to understand the populations distribution in these areas.
+* Gender is not a cardinal factor to consider as its relationship with ads clicked is not statistically significant its probability of being due to chance surpasses our thresh hold of 0.05, which is our margin of error.
+
+
+
+
+
+
+
+
+
+
+
+
+
